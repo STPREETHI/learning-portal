@@ -1,0 +1,40 @@
+<div class="flex items-center justify-center" style="min-height: calc(100vh - 200px);">
+    <div class="w-full max-w-md p-8 space-y-6 bg-white dark:bg-slate-800 rounded-xl shadow-lg">
+        <div>
+            <h2 class="text-center text-3xl font-extrabold text-slate-900 dark:text-white">
+                {{ mode === 'signin' ? 'Sign in to your account' : 'Create a new account' }}
+            </h2>
+        </div>
+
+        <div class="flex justify-center border-b border-slate-200 dark:border-slate-700">
+            <button (click)="setMode('signin')" class="px-4 py-2 text-sm font-medium" [ngClass]="{'border-b-2 border-sky-500 text-sky-600': mode === 'signin', 'text-slate-500': mode !== 'signin'}">Sign In</button>
+            <button (click)="setMode('signup')" class="px-4 py-2 text-sm font-medium" [ngClass]="{'border-b-2 border-sky-500 text-sky-600': mode === 'signup', 'text-slate-500': mode !== 'signup'}">Sign Up</button>
+        </div>
+
+        <form class="space-y-4" (ngSubmit)="handleSubmit()">
+            <div>
+                <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Name</label>
+                <input id="name" name="name" type="text" required [(ngModel)]="name" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm" />
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+                <input id="password" name="password" type="password" required [(ngModel)]="password" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm" />
+            </div>
+            
+            <div *ngIf="mode === 'signup'">
+                <span class="block text-sm font-medium text-slate-700 dark:text-slate-300">I am a...</span>
+                <div class="mt-2 flex rounded-md shadow-sm">
+                    <button type="button" (click)="setRole(userRoleEnum.Ward)" class="flex-1 px-4 py-2 text-sm font-medium rounded-l-md" [ngClass]="{'bg-sky-600 text-white': role === userRoleEnum.Ward, 'bg-white dark:bg-slate-700': role !== userRoleEnum.Ward}">Ward</button>
+                    <button type="button" (click)="setRole(userRoleEnum.Tutor)" class="flex-1 px-4 py-2 text-sm font-medium rounded-r-md" [ngClass]="{'bg-sky-600 text-white': role === userRoleEnum.Tutor, 'bg-white dark:bg-slate-700': role !== userRoleEnum.Tutor}">Tutor</button>
+                </div>
+            </div>
+
+            <p *ngIf="error" class="text-red-500 text-sm text-center">{{ error }}</p>
+          
+            <button type="submit" [disabled]="isLoading" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:bg-sky-400">
+                 <app-spinner-icon *ngIf="isLoading" [className]="'w-5 h-5'"></app-spinner-icon>
+                 <span *ngIf="!isLoading">{{ mode === 'signin' ? 'Sign In' : 'Create Account' }}</span>
+            </button>
+        </form>
+    </div>
+</div>

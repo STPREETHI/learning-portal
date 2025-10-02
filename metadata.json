@@ -1,0 +1,5 @@
+{
+  "name": "AI Quiz Generator for Tutors",
+  "description": "An interactive platform for tutors to generate quizzes from study materials using AI, and for students to take them and track their progress.",
+  "requestFramePermissions": []
+}

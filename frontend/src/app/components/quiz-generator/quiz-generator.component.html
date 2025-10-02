@@ -1,0 +1,58 @@
+<div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-full">
+    <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Create New Quiz</h3>
+    
+    <div *ngIf="!generatedQuestions; else reviewQuiz">
+      <div class="space-y-4">
+        <div>
+          <label for="quizTitle" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Quiz Title</label>
+          <input type="text" id="quizTitle" [(ngModel)]="quizTitle" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm" placeholder="e.g., Chapter 1: Introduction">
+        </div>
+        <div>
+          <label for="textContent" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Study Content</label>
+          <textarea id="textContent" rows="10" [(ngModel)]="textContent" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm" placeholder="Paste study material or upload a file."></textarea>
+        </div>
+        <div class="flex items-center justify-between">
+          <label for="file-upload" class="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-slate-600 hover:bg-slate-700">
+            <span>Upload File</span>
+            <input id="file-upload" type="file" accept=".txt,.ppt,.pptx,.mp4,.mov,.webm" class="sr-only" (change)="handleFileChange($event)">
+          </label>
+          <div>
+            <label for="numQuestions" class="text-sm font-medium text-slate-700 dark:text-slate-300 mr-2">Questions:</label>
+            <input type="number" id="numQuestions" min="1" max="10" [(ngModel)]="numQuestions" class="w-20 px-2 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm text-center">
+          </div>
+        </div>
+        <button (click)="handleGenerateQuiz()" [disabled]="isLoading" class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700 disabled:bg-sky-300">
+          <ng-container *ngIf="isLoading">
+            <app-spinner-icon [className]="'w-5 h-5 mr-3'"></app-spinner-icon>
+            {{ loadingMessage || 'Processing...' }}
+          </ng-container>
+          <ng-container *ngIf="!isLoading">Generate Quiz with AI</ng-container>
+        </button>
+        <p *ngIf="error" class="text-red-500 text-sm mt-2 text-center">{{ error }}</p>
+      </div>
+    </div>
+  
+    <ng-template #reviewQuiz>
+      <div>
+        <h4 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Review Generated Quiz: "{{ quizTitle }}"</h4>
+        <div class="space-y-4 max-h-80 overflow-y-auto pr-2">
+          <div *ngFor="let q of generatedQuestions; let index = index" class="p-4 border border-slate-200 dark:border-slate-700 rounded-md">
+            <p class="font-semibold text-slate-700 dark:text-slate-200">{{ index + 1 }}. {{ q.question }}</p>
+            <ul class="mt-2 space-y-1">
+              <li *ngFor="let opt of q.options" class="text-sm" [ngClass]="opt === q.correctAnswer ? 'text-green-600 dark:text-green-400 font-medium' : 'text-slate-600 dark:text-slate-400'">
+                {{ opt === q.correctAnswer ? '✓' : '•' }} {{ opt }}
+              </li>
+            </ul>
+          </div>
+        </div>
+         <div class="mt-4 flex items-center">
+          <input id="allowRetakes" type="checkbox" [(ngModel)]="allowRetakes" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500">
+          <label for="allowRetakes" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">Allow students to retake this quiz</label>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button (click)="generatedQuestions = null" class="px-4 py-2 border border-slate-300 text-sm font-medium rounded-md">Edit & Regenerate</button>
+          <button (click)="handlePublishQuiz()" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700">Publish Quiz</button>
+        </div>
+      </div>
+    </ng-template>
+  </div>

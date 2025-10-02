@@ -1,0 +1,28 @@
+<div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 w-full">
+    <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Create New Assignment</h3>
+    <form (ngSubmit)="handleSubmit()" class="space-y-4">
+      <div>
+        <label for="assignmentTitle" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Assignment Title</label>
+        <input
+          type="text"
+          id="assignmentTitle"
+          [(ngModel)]="title" name="title"
+          class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm"
+          placeholder="e.g., Essay on the Fall of Rome"
+        />
+      </div>
+      <div>
+        <label for="assignmentDescription" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Description / Instructions</label>
+        <textarea
+          id="assignmentDescription"
+          rows="5"
+          [(ngModel)]="description" name="description"
+          class="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm"
+          placeholder="Provide detailed instructions..."
+        ></textarea>
+      </div>
+      <button type="submit" class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+        Publish Assignment
+      </button>
+    </form>
+</div>

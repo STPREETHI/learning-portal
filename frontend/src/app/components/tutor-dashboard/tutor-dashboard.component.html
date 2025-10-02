@@ -1,0 +1,107 @@
+<app-assignment-grading-modal 
+  *ngIf="selectedAssignment && selectedSubmission"
+  [assignment]="selectedAssignment"
+  [submission]="selectedSubmission"
+  [wardName]="getWardName(selectedSubmission.wardId)"
+  (close)="selectedAssignment = null; selectedSubmission = null"
+  (saveGrade)="handleSaveGrade($event)">
+</app-assignment-grading-modal>
+
+<div class="space-y-8">
+  <div>
+    <button (click)="back.emit()" class="text-sm font-medium text-sky-600 dark:text-sky-400 hover:underline mb-2">
+      &larr; Back to Classrooms
+    </button>
+    <div class="md:flex justify-between items-center">
+      <div>
+        <h2 class="text-3xl font-bold text-slate-800 dark:text-white">{{ classroom.name }}</h2>
+        <p class="text-slate-500 dark:text-slate-400">{{ classroom.course.title }}</p>
+      </div>
+      <div class="mt-2 md:mt-0 text-sm font-mono bg-slate-100 dark:bg-slate-700 p-2 rounded-md">
+          Join Code: <span class="font-bold text-sky-600 dark:text-sky-400">{{ classroom.code }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-b border-slate-200 dark:border-slate-700">
+    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+      <button *ngFor="let tab of tabs" (click)="activeTab = tab.id" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+        [ngClass]="{
+          'border-sky-500 text-sky-600': activeTab === tab.id,
+          'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300': activeTab !== tab.id
+        }">
+          {{ tab.name }}
+      </button>
+    </nav>
+  </div>
+
+  <div>
+    <ng-container [ngSwitch]="activeTab">
+      <div *ngSwitchCase="'quizzes'">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-1">
+            <app-quiz-generator (quizGenerated)="quizCreated.emit($event)"></app-quiz-generator>
+          </div>
+          <div class="lg:col-span-2 space-y-8">
+            <app-leaderboard *ngFor="let quiz of classroom.quizzes" [quiz]="quiz" [wards]="enrolledWards"></app-leaderboard>
+          </div>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'assignments'">
+         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-1">
+            <app-assignment-creator (assignmentCreated)="assignmentCreated.emit($event)"></app-assignment-creator>
+          </div>
+          <div class="lg:col-span-2 space-y-6">
+            <div *ngFor="let assignment of classroom.assignments" class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+                <h4 class="text-lg font-bold text-slate-800 dark:text-white">{{ assignment.title }}</h4>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ assignment.submissions.length }} / {{ enrolledWards.length }} submitted</p>
+                <div class="mt-4">
+                    <h5 class="text-sm font-semibold mb-2">Submissions:</h5>
+                    <ul *ngIf="assignment.submissions.length > 0; else noSubmissions" class="space-y-2">
+                        <li *ngFor="let sub of assignment.submissions" class="flex justify-between items-center p-2 bg-slate-50 dark:bg-slate-700/50 rounded-md">
+                            <span>{{ getWardName(sub.wardId) }}</span>
+                            <button (click)="handleGradeClick(assignment, sub)" class="text-sm font-medium text-sky-600 hover:underline">
+                              {{ sub.grade !== null ? 'View / Edit Grade (' + sub.grade + '%)' : 'Grade Now' }}
+                            </button>
+                        </li>
+                    </ul>
+                    <ng-template #noSubmissions><p class="text-sm text-slate-400">No submissions yet.</p></ng-template>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'students'">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+                  <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Enrolled Students ({{ enrolledWards.length }})</h3>
+                  <ul class="space-y-2">
+                      <li *ngFor="let ward of enrolledWards" class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-md font-medium">{{ ward.name }}</li>
+                  </ul>
+              </div>
+               <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+                  <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Join Requests ({{ joinRequestWards.length }})</h3>
+                   <ul *ngIf="joinRequestWards.length > 0; else noRequests" class="space-y-2">
+                      <li *ngFor="let ward of joinRequestWards" class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-md">
+                          <span class="font-medium">{{ ward.name }}</span>
+                          <button (click)="approveRequest.emit(ward.id)" class="px-3 py-1 text-xs font-semibold rounded-md text-white bg-green-600 hover:bg-green-700">Approve</button>
+                      </li>
+                   </ul>
+                   <ng-template #noRequests><p class="text-slate-500 dark:text-slate-400">No pending join requests.</p></ng-template>
+              </div>
+          </div>
+      </div>
+
+      <div *ngSwitchCase="'attendance'">
+        <app-attendance-tracker [wards]="enrolledWards" [attendanceRecords]="classroom.attendance" (updateAttendance)="updateAttendance.emit($event)"></app-attendance-tracker>
+      </div>
+
+      <div *ngSwitchCase="'analytics'">
+        <app-quiz-analytics [classroom]="classroom" [allWards]="allWards"></app-quiz-analytics>
+      </div>
+    </ng-container>
+  </div>
+</div>

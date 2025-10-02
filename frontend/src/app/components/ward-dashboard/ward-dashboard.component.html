@@ -1,0 +1,103 @@
+<ng-container *ngIf="activeQuiz; else mainDashboard">
+  <button (click)="activeQuiz = null" class="mb-4 px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600">
+    &larr; Back to Dashboard
+  </button>
+  <app-quiz-taker 
+    [quiz]="activeQuiz" 
+    (complete)="handleQuizComplete($event)" 
+    (retake)="activeQuiz = activeQuiz">
+  </app-quiz-taker>
+</ng-container>
+
+<ng-template #mainDashboard>
+  <app-assignment-modal 
+    *ngIf="activeAssignment"
+    [assignment]="activeAssignment"
+    [currentUser]="currentUser"
+    (close)="activeAssignment = null"
+    (submit)="handleAssignmentSubmit($event)">
+  </app-assignment-modal>
+
+  <div class="space-y-8">
+      <div>
+          <button (click)="back.emit()" class="text-sm font-medium text-sky-600 dark:text-sky-400 hover:underline mb-2">
+              &larr; Back to Classrooms
+          </button>
+          <h2 class="text-3xl font-bold text-slate-800 dark:text-white">{{ classroom.name }}</h2>
+          <p class="text-slate-500 dark:text-slate-400">{{ classroom.course.title }}</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2 space-y-8">
+              <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-white mb-4">Your Tasks</h3>
+                   <div *ngIf="classroom.quizzes.length === 0 && classroom.assignments.length === 0; else taskGrid" class="text-center py-8">
+                      <p class="text-slate-500 dark:text-slate-400">Your tutor hasn't assigned any tasks yet.</p>
+                  </div>
+                  <ng-template #taskGrid>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div *ngFor="let quiz of classroom.quizzes" class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-5 flex flex-col justify-between">
+                              <div>
+                                  <span class="text-xs font-semibold uppercase text-sky-500 dark:text-sky-400">Quiz</span>
+                                  <h4 class="font-bold text-lg text-slate-800 dark:text-white mt-1">{{ quiz.title }}</h4>
+                                  <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ quiz.questions.length }} Questions</p>
+                              </div>
+                              <div class="mt-4">
+                                  <div *ngIf="getLatestSubmission(quiz) as latestSubmission; else startQuiz">
+                                      <div class="text-center">
+                                          <p class="text-xs text-slate-500 dark:text-slate-400">Latest Score</p>
+                                          <p class="text-2xl font-bold text-sky-600 dark:text-sky-400">{{ latestSubmission.score.toFixed(0) }}%</p>
+                                      </div>
+                                  </div>
+                                  <ng-template #startQuiz>
+                                      <button (click)="activeQuiz = quiz" class="w-full px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700">Start Quiz</button>
+                                  </ng-template>
+                              </div>
+                          </div>
+                          <div *ngFor="let assignment of classroom.assignments" class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-5 flex flex-col justify-between">
+                              <div>
+                                  <span class="text-xs font-semibold uppercase text-indigo-500 dark:text-indigo-400">Assignment</span>
+                                  <h4 class="font-bold text-lg text-slate-800 dark:text-white mt-1">{{ assignment.title }}</h4>
+                              </div>
+                              <div class="mt-4">
+                                  <button *ngIf="getAssignmentSubmission(assignment); else startAssignment" (click)="activeAssignment = assignment" class="w-full px-4 py-2 border border-slate-300 text-sm font-medium rounded-md shadow-sm">View Submission</button>
+                                  <ng-template #startAssignment>
+                                      <button (click)="activeAssignment = assignment" class="w-full px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">Start Assignment</button>
+                                  </ng-template>
+                              </div>
+                          </div>
+                      </div>
+                  </ng-template>
+              </div>
+          </div>
+          <div class="space-y-8">
+               <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-white mb-4">Syllabus</h3>
+                  <ul *ngIf="classroom.course.syllabus.length > 0; else noSyllabus" class="space-y-2">
+                      <li *ngFor="let item of classroom.course.syllabus" class="flex items-center">
+                          <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center mr-3" [ngClass]="item.completed ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'">
+                              <svg *ngIf="item.completed" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                          </div>
+                          <span [ngClass]="item.completed ? 'text-slate-500' : 'text-slate-800 dark:text-slate-200'">{{ item.topic }}</span>
+                      </li>
+                  </ul>
+                  <ng-template #noSyllabus><p class="text-slate-500 dark:text-slate-400 text-center py-4">The course syllabus has not been added yet.</p></ng-template>
+              </div>
+              <div class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
+                  <h3 class="text-xl font-semibold text-slate-800 dark:text-white mb-4">Your Attendance</h3>
+                   <ul *ngIf="attendanceHistory.length > 0; else noAttendance" class="space-y-2 max-h-48 overflow-y-auto pr-2">
+                      <li *ngFor="let record of attendanceHistory | slice:0:5" class="flex justify-between items-center text-sm p-2 bg-slate-50 dark:bg-slate-700/50 rounded-md">
+                          <span class="text-slate-600 dark:text-slate-300">{{ record.date | date:'EEEE, MMM d' }}</span>
+                          <span class="font-semibold capitalize px-2 py-0.5 rounded-full text-xs" [ngClass]="{
+                              'bg-green-100 text-green-800': record.status === 'present',
+                              'bg-red-100 text-red-800': record.status === 'absent',
+                              'bg-yellow-100 text-yellow-800': record.status === 'late'
+                            }">{{ record.status }}</span>
+                      </li>
+                  </ul>
+                  <ng-template #noAttendance><p class="text-slate-500 dark:text-slate-400 text-center py-4">Your attendance has not been recorded yet.</p></ng-template>
+              </div>
+          </div>
+      </div>
+  </div>
+</ng-template>
