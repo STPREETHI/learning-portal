@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { User, UserRole, Classroom, Quiz, Assignment, WardSubmission, AssignmentSubmission, AttendanceRecord } from '../types';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private API_BASE_URL = 'http://localhost:5001/api';
+  private API_BASE_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
   

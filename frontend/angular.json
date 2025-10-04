@@ -5,20 +5,17 @@
   "projects": {
     "ai-tutor-frontend": {
       "projectType": "application",
-      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/ai-tutor-frontend",
             "index": "src/index.html",
-            "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
@@ -32,44 +29,34 @@
           "configurations": {
             "production": {
               "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
-                }
+                { "type": "initial", "maximumWarning": "500kb", "maximumError": "1mb" },
+                { "type": "anyComponentStyle", "maximumWarning": "2kb", "maximumError": "4kb" }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "optimization": true,
+              "sourceMap": false,
+              "extractLicenses": true
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
             }
-          },
-          "defaultConfiguration": "production"
+          }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "ai-tutor-frontend:build:production"
-            },
-            "development": {
-              "buildTarget": "ai-tutor-frontend:build:development"
-            }
+          "options": {
+            "browserTarget": "ai-tutor-frontend:build:development"
           },
-          "defaultConfiguration": "development"
+          "configurations": {
+            "production": { "browserTarget": "ai-tutor-frontend:build:production" },
+            "development": { "browserTarget": "ai-tutor-frontend:build:development" }
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "buildTarget": "ai-tutor-frontend:build"
-          }
+          "options": { "browserTarget": "ai-tutor-frontend:build" }
         }
       }
     }
